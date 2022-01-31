@@ -969,10 +969,10 @@
   dependencies:
     "@types/jquery" "*"
 
-"@types/echarts@^4.1.9":
-  version "4.6.5"
-  resolved "https://registry.yarnpkg.com/@types/echarts/-/echarts-4.6.5.tgz#6aba35e7d5fdb97f0852865a11ad1cd52f0b72fe"
-  integrity sha512-lzYceya5tCBAUTjYnTP2Lwd1VAlyjLfWm3pRFqS4Nzj+Lb+1ej+uX40miM/je73jqVXvO+g3FTMNzyKWDmLR1Q==
+"@types/echarts@^4.9.12":
+  version "4.9.13"
+  resolved "https://registry.yarnpkg.com/@types/echarts/-/echarts-4.9.13.tgz#b4a56f8ff471af65dd54b196af6972629d6745d4"
+  integrity sha512-xqZ21MXOBU5i+BywnxAi0He+M6lsRtANBvbqJHmqM8T64Lx7azHJWbv/vSKVJfEbv3XyYpxeDhpV7gFi5mfgeA==
   dependencies:
     "@types/zrender" "*"
 
