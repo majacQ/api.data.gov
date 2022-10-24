@@ -6,7 +6,7 @@ gem "rake", "~> 13.0"
 
 # Middleman Gems
 gem "middleman", "~> 4.4.0"
-gem "middleman-livereload", "~> 3.4.6"
+gem "middleman-livereload", "~> 3.4.7"
 
 # Syntax highlighting
 gem "middleman-syntax", "~> 3.2.0"
