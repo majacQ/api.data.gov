@@ -12,10 +12,10 @@ gem "middleman-livereload", "~> 3.4.6"
 gem "middleman-syntax", "~> 3.2.0"
 
 # Assets
-gem "middleman-sprockets", "~> 4.1.0"
+gem "middleman-sprockets", "~> 4.1.1"
 # Pin sprockets to less than 4 to fix current issues in 4.0.0 with js.erb
 # files.
-gem "sprockets", "< 4"
+gem "sprockets", "~> 4.2"
 gem "sass", "~> 3.7.3"
 
 # Asset minification
