@@ -2,9 +2,53 @@ name: CI
 
 on: [push, pull_request]
 
+env:
+  COMPOSE_FILE: docker-compose.ci.yml
+  TEST_IMAGE_REPO: ghcr.io/18f/api.data.gov
+
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.image-metadata.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Container metadata
+        id: image-metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.TEST_IMAGE_REPO }}
+          flavor: |
+            prefix=test-image-
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker build
+        run: docker buildx bake -f "${{ env.COMPOSE_FILE }}" --push
+        env:
+          TEST_IMAGE_TAG: ${{ steps.image-metadata.outputs.version }}
+
+      - name: ESLint
+        run: docker compose run --rm web pnpm run lint --max-warnings 0
+        env:
+          TEST_IMAGE_TAG: ${{ steps.image-metadata.outputs.version }}
+
+      - name: Prettier Check
+        run: docker compose run --rm web pnpm run prettier:check
+        env:
+          TEST_IMAGE_TAG: ${{ steps.image-metadata.outputs.version }}
+
   build:
     runs-on: ubuntu-latest
+    needs: test
     strategy:
       matrix:
         deploy_env: [production, staging]
@@ -14,65 +58,49 @@ jobs:
           - deploy_env: staging
             web_site_root_secret_name: STAGING_WEB_SITE_ROOT
           - deploy_env: production
-            api_key_secret_name: API_KEY
+            signup_api_key_secret_name: API_KEY
           - deploy_env: staging
-            api_key_secret_name: STAGING_API_KEY
-    env:
-      BUNDLE_JOBS: 4
-      BUNDLE_RETRY: 3
-      BUNDLE_PATH: vendor/bundle
-      BUNDLE_CLEAN: "true"
+            signup_api_key_secret_name: STAGING_API_KEY
+          - deploy_env: production
+            contact_api_key_secret_name: CONTACT_API_KEY
+          - deploy_env: staging
+            contact_api_key_secret_name: STAGING_CONTACT_API_KEY
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: actions/setup-ruby@v1
-        with:
-          ruby-version: "2.7"
 
-      # Ruby dependencies
-      - name: Bundle Cache
-        uses: actions/cache@v1
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
-      - name: Bundle Install
-        run: bundle install
-
-      # Yarn dependencies
-      - name: Yarn Cache Path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - name: Yarn Cache
-        uses: actions/cache@v1
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Yarn Install
-        run: yarn install
-      - name: Metrics Yarn Install
-        working-directory: metrics
-        run: yarn install
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       # Build
       - name: Build
         env:
-          WEB_SITE_ROOT: ${{ secrets[matrix.web_site_root_secret_name] }}
-          API_KEY: ${{ secrets[matrix.api_key_secret_name] }}
-        run: bundle exec rake
-      - uses: actions/upload-artifact@v1
+          TEST_IMAGE_TAG: ${{ needs.test.outputs.image-tag }}
+        run: |
+          docker compose run \
+            -e "HUGO_PARAMS_APIUMBRELLACONTACTAPIKEY=${{ secrets[matrix.contact_api_key_secret_name] }}" \
+            -e "HUGO_PARAMS_APIUMBRELLASIGNUPAPIKEY=${{ secrets[matrix.signup_api_key_secret_name] }}" \
+            --rm \
+            web \
+            hugo \
+            --minify \
+            --baseURL "${{ secrets[matrix.web_site_root_secret_name] }}"
+      - uses: actions/upload-artifact@v4
         with:
           name: build-${{ matrix.deploy_env }}
-          path: ./build
+          path: ./public
 
   deploy:
-    if: success() && github.ref == 'refs/heads/main'
+    if: success() && github.repository_owner == '18F' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
+    container:
+      image: rclone/rclone:1.62.2
     strategy:
       matrix:
         deploy_env: [production, staging]
@@ -94,50 +122,53 @@ jobs:
           - deploy_env: staging
             aws_default_region_secret_name: STAGING_AWS_DEFAULT_REGION
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
-        with:
-          python-version: "3.8"
-      - uses: dschep/install-pipenv-action@v1
-
-      # Python deployment dependencies
-      - name: Pipenv Cache
-        uses: actions/cache@v1
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pipenv-
-      - name: Pipenv Install
-        run: pipenv install
-
       # Deploy to S3 bucket.
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v4
         with:
           name: build-${{ matrix.deploy_env }}
-          path: ./build
+          path: ./public
       - name: Deploy
         env:
-          BUCKET_NAME: ${{ secrets[matrix.bucket_name_secret_name] }}
-          AWS_ACCESS_KEY_ID: ${{ secrets[matrix.aws_access_key_id_secret_name] }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets[matrix.aws_secret_access_key_secret_name] }}
-          AWS_DEFAULT_REGION: ${{ secrets[matrix.aws_default_region_secret_name] }}
+          RCLONE_S3_ACCESS_KEY_ID: ${{ secrets[matrix.aws_access_key_id_secret_name] }}
+          RCLONE_S3_SECRET_ACCESS_KEY: ${{ secrets[matrix.aws_secret_access_key_secret_name] }}
+          RCLONE_S3_REGION: ${{ secrets[matrix.aws_default_region_secret_name] }}
+          S3_DEST: ":s3:${{ secrets[matrix.bucket_name_secret_name] }}/"
         run: |
+          # Identify cache-busted assets by the fingerprint in the filename.
+          cache_busted_assets="/{images,javascripts,stylesheets}/**.{\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w\w}.*"
           # Sync all cache-busted assets with long cache-control expirations.
-          pipenv run aws s3 sync ./build/ "s3://${BUCKET_NAME}/" \
-            --exclude '*' \
-            --include 'static/fonts/*' \
-            --include 'static/img/*' \
-            --include 'static/javascripts/all-*' \
-            --include 'static/javascripts/ie_lt_9-*' \
-            --include 'static/stylesheets/*' \
-            --include 'metrics/css/*' \
-            --include 'metrics/js/*' \
-            --cache-control 'public, max-age=31536000, immutable'
+          rclone \
+            copy \
+            --verbose \
+            --checksum \
+            --no-update-modtime \
+            --s3-no-check-bucket \
+            --s3-no-head \
+            --header-upload "Cache-Control: public, max-age=31536000, immutable" \
+            --include "$cache_busted_assets" \
+            ./public/ \
+            "$S3_DEST"
           # Sync the remaining files, disallowing caching on those.
-          pipenv run aws s3 sync ./build/ "s3://${BUCKET_NAME}/" --cache-control 'max-age=0, no-cache, must-revalidate'
-          # Run the sync one more time to delete old files. Run this separately
-          # since otherwise --deletes occur first:
-          # https://github.com/aws/aws-cli/issues/1417
-          sleep 5
-          pipenv run aws s3 sync ./build/ "s3://${BUCKET_NAME}/" --cache-control 'max-age=0, no-cache, must-revalidate' --delete
+          rclone \
+            copy \
+            --verbose \
+            --checksum \
+            --no-update-modtime \
+            --s3-no-check-bucket \
+            --s3-no-head \
+            --header-upload "Cache-Control: no-cache, max-age=0, must-revalidate" \
+            ./public/ \
+            "$S3_DEST"
+          # Run the sync one more time to delete old files. Keep old asset
+          # files around, so that if old HTML pages continue to load for a few
+          # minutes, they can still load older assets.
+          rclone \
+            sync \
+            --verbose \
+            --checksum \
+            --no-update-modtime \
+            --s3-no-check-bucket \
+            --s3-no-head \
+            --exclude "$cache_busted_assets" \
+            ./public/ \
+            "$S3_DEST"

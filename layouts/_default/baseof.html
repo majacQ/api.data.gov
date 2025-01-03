@@ -1,0 +1,9 @@
+<!doctype html>
+<html class="no-js datagov" dir="ltr" lang="en">
+  {{- partial "head.html" . -}}
+  <body class="archive category {{ .Params.bodyClass }}">
+    {{- partial "header.html" . -}}
+    {{- block "main" . }}{{- end }}
+    {{- partial "footer.html" . -}}
+  </body>
+</html>

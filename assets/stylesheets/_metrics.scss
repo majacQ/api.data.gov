@@ -1,0 +1,158 @@
+body.api-metrics {
+  #main-content .grid-container {
+    max-width: none !important;
+  }
+}
+
+#api-metrics {
+  width: 100% !important;
+
+  h1 {
+    text-align: center;
+  }
+
+  .font-heading-xl {
+    line-height: 1.2;
+    margin: 1rem 0rem;
+  }
+
+  .usa-table-container--scrollable td {
+    white-space: normal;
+  }
+
+  tbody .numeric-value {
+    @include styles.u-font("mono", "sm");
+    @extend .text-tabular;
+    @extend .text-right;
+  }
+
+  table.dataTable {
+    > thead > tr {
+      > th.dt-orderable-asc,
+      > th.dt-orderable-desc,
+      > td.dt-orderable-asc,
+      > td.dt-orderable-desc {
+        cursor: pointer;
+        position: relative;
+        padding-right: 2rem;
+      }
+
+      > th.dt-orderable-asc span.dt-column-order,
+      > th.dt-orderable-desc span.dt-column-order,
+      > th.dt-ordering-asc span.dt-column-order,
+      > th.dt-ordering-desc span.dt-column-order,
+      > td.dt-orderable-asc span.dt-column-order,
+      > td.dt-orderable-desc span.dt-column-order,
+      > td.dt-ordering-asc span.dt-column-order,
+      > td.dt-ordering-desc span.dt-column-order {
+        display: block;
+        width: 1.5rem;
+        height: 1.5rem;
+        position: absolute;
+        right: 0.25rem;
+        top: 50%;
+
+        &:after {
+          content: url('data:image/svg+xml; utf8, <svg class="usa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g class="unsorted"><polygon points="15.17 15 13 17.17 13 6.83 15.17 9 16.58 7.59 12 3 7.41 7.59 8.83 9 11 6.83 11 17.17 8.83 15 7.42 16.41 12 21 16.59 16.41 15.17 15"></polygon></g></svg>');
+        }
+      }
+
+      > th.dt-ordering-desc span.dt-column-order:after,
+      > td.dt-ordering-desc span.dt-column-order:after {
+        content: url('data:image/svg+xml; utf8, <svg class="usa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g class="descending"><path d="M17 17L15.59 15.59L12.9999 18.17V2H10.9999V18.17L8.41 15.58L7 17L11.9999 22L17 17Z"></path></g></svg>');
+      }
+
+      > th.dt-ordering-asc span.dt-column-order:after,
+      > td.dt-ordering-asc span.dt-column-order:after {
+        content: url('data:image/svg+xml; utf8, <svg class="usa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g class="ascending"><path transform="rotate(180, 12, 12)" d="M17 17L15.59 15.59L12.9999 18.17V2H10.9999V18.17L8.41 15.58L7 17L11.9999 22L17 17Z"></path></g></svg>');
+      }
+    }
+
+    // Fix bottom border getting clipped by usa-table-container--scrollable
+    // caused by these empty elements datatables adds.
+    colgroup,
+    tfoot {
+      display: none;
+    }
+  }
+
+  .usa-table td.sorting_1,
+  .usa-table th.sorting_1 {
+    background-color: styles.color(styles.$theme-table-sorted-background-color);
+    color: styles.$table-sorted-text-color;
+  }
+
+  .usa-table--striped tbody tr:nth-child(odd) td.sorting_1,
+  .usa-table--striped tbody tr:nth-child(odd) th.sorting_1 {
+    background-color: styles.color(
+      styles.$theme-table-sorted-stripe-background-color
+    );
+    color: styles.$table-sorted-stripe-text-color;
+  }
+
+  .custom-select {
+    display: inline-block;
+    height: calc(1.5em + 0.75em + 2px);
+    padding: 0.375em 1.75em 0.375em 0.75em;
+    font-size: 1em;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    vertical-align: middle;
+    background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E")
+      no-repeat right 0.75em center/8px 10px;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 0.25em;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+  .custom-select:focus {
+    border-color: #80bdff;
+    outline: 0;
+    -webkit-box-shadow: 0 0 0 0.2em rgba(0, 123, 255, 0.25);
+    box-shadow: 0 0 0 0.2em rgba(0, 123, 255, 0.25);
+  }
+  .custom-select:focus::-ms-value {
+    color: #495057;
+    background-color: #fff;
+  }
+  .custom-select[multiple],
+  .custom-select[size]:not([size="1"]) {
+    height: auto;
+    padding-right: 0.75em;
+    background-image: none;
+  }
+  .custom-select:disabled {
+    color: #6c757d;
+    background-color: #e9ecef;
+  }
+  .custom-select::-ms-expand {
+    display: none;
+  }
+  .custom-select-sm {
+    height: calc(1.5em + 0.5em + 2px);
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+    padding-left: 0.5em;
+    font-size: 0.875em;
+  }
+  .custom-select-lg {
+    height: calc(1.5em + 1em + 2px);
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    padding-left: 1em;
+    font-size: 1.25em;
+  }
+
+  .custom-select-lg-container {
+    font-size: 14px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .metrics-footer {
+    margin-top: 2em;
+  }
+}

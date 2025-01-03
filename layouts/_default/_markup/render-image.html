@@ -1,0 +1,16 @@
+{{ $title := .Title }}
+{{ $altText := .Text }}
+
+{{ with resources.GetMatch .Destination }}
+  <img
+    src="{{ (. | resources.Fingerprint).Permalink }}"
+    alt="{{ $altText }}"
+    {{ with $title }}title="{{ . }}"{{ end }}
+  />
+{{ else }}
+  <img
+    src="{{ .Destination }}"
+    alt="{{ $altText }}"
+    {{ with $title }}title="{{ . }}"{{ end }}
+  />
+{{ end }}
