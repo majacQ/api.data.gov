@@ -1,0 +1,153 @@
+<div class="page-landing-page layout-demo ">
+  <a class="usa-skipnav" href="#main-content">Skip to main content</a>
+  <div class="usa-banner">
+    <div class="usa-accordion">
+      <section
+        id="gov-banner-header-section"
+        aria-label="USA Gov banner section header"
+        class="usa-banner__header"
+      >
+        <div class="usa-banner__inner">
+          <div class="grid-col-auto">
+            <img
+              aria-hidden="true"
+              class="usa-banner__header-flag"
+              src="/node_modules/@uswds/uswds/dist/img/us_flag_small.png"
+              alt=""
+            />
+          </div>
+          <div class="grid-col-fill tablet:grid-col-auto">
+            <p class="usa-banner__header-text">
+              An official website of the United States government
+            </p>
+            <p class="usa-banner__header-action" aria-hidden="true">
+              Here's how you know
+            </p>
+          </div>
+          <button
+            class="usa-accordion__button usa-banner__button"
+            aria-expanded="false"
+            aria-controls="gov-banner"
+          >
+            <span class="usa-banner__button-text">Here's how you know</span>
+          </button>
+        </div>
+      </section>
+      <div class="usa-banner__content usa-accordion__content" id="gov-banner">
+        <div class="grid-row grid-gap-lg">
+          <div class="usa-banner__guidance tablet:grid-col-6">
+            <img
+              class="usa-banner__icon usa-media-block__img"
+              src="/node_modules/@uswds/uswds/dist/img/icon-dot-gov.svg"
+              role="img"
+              alt=""
+              aria-hidden="true"
+            />
+            <div class="usa-media-block__body">
+              <p>
+                <strong>The .gov means it's official.</strong>
+                <br />
+                Federal government websites often end in .gov or .mil. Before
+                sharing sensitive information, make sure you're on a federal
+                government site.
+              </p>
+            </div>
+          </div>
+          <div class="usa-banner__guidance tablet:grid-col-6">
+            <img
+              class="usa-banner__icon usa-media-block__img"
+              src="/node_modules/@uswds/uswds/dist/img/icon-https.svg"
+              role="img"
+              alt=""
+              aria-hidden="true"
+            />
+            <div class="usa-media-block__body">
+              <p>
+                <strong>The site is secure.</strong>
+                <br />
+                The <strong>https://</strong> ensures that you are connecting to
+                the official website and that any information you provide is
+                encrypted and transmitted securely.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="usa-overlay"></div>
+</div>
+
+<header class="usa-header usa-header--extended" role="banner">
+  <div class="grid-container">
+    <div class="grid-row">
+      <div class="grid-col-fill desktop:grid-col-auto">
+        <div class="usa-navbar">
+          <div class="usa-logo" id="extended-logo">
+            <em class="usa-logo__text"
+              ><a
+                href="https://www.data.gov/"
+                title="Home"
+                aria-label="Home"
+              ></a
+            ></em>
+          </div>
+          <button class="usa-menu-btn">Menu</button>
+        </div>
+      </div>
+      <div class="grid-col-auto desktop:grid-col-fill">
+        <nav
+          id="menu-navigation"
+          aria-label="Menu navigation"
+          role="navigation"
+          class="usa-nav"
+        >
+          <div class="usa-nav__inner">
+            <button class="usa-nav__close">
+              {{ chomp (partial "usa-icon" (dict "icon" "close")) }}
+            </button>
+            <ul class="usa-nav__primary usa-accordion">
+              <li class="usa-nav__primary-item">
+                <a class="usa-nav__link" href="https://catalog.data.gov"
+                  ><span class="text-uppercase">Data</span></a
+                >
+              </li>
+
+              <li class="usa-nav__primary-item">
+                <a class="usa-nav__link" href="https://catalog.data.gov/report"
+                  ><span class="text-uppercase">Reports</span></a
+                >
+              </li>
+
+              <li class="usa-nav__primary-item">
+                <a class="usa-nav__link" href="https://data.gov/open-gov"
+                  ><span class="text-uppercase">Open Government</span></a
+                >
+              </li>
+
+              <li class="usa-nav__primary-item">
+                <a class="usa-nav__link" href="/contact/"
+                  ><span class="text-uppercase">Contact</span></a
+                >
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+
+<header class="navbar navbar-static-top masthead">
+  <div class="header_new banner_new page-heading_new">
+    <div class="grid-container">
+      <div class="page-header_new">
+        <div class="main-heading">
+          <h1>
+            <a href="/">api.data.gov</a>
+          </h1>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
